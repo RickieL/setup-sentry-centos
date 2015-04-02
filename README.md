@@ -95,3 +95,5 @@ Copyright © 2014- Kentaro Yoshida ([@yoshi_ken](https://twitter.com/yoshi_ken))
 ## License
 
 * MIT License http://www.opensource.org/licenses/mit-license.php
+
+test
