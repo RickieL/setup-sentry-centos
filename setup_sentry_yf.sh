@@ -1,10 +1,7 @@
 yum update -y
 
-yum  -y install gcc git patch libxslt libxslt-devel libxml2 libxml2-devel libzip libzip-devel libffi libffi-devel openssl openssl-devel mysql-server mysql-devel gcc make
-
-yum -y install http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-
-yum -y install redis
+yum -y install epel-release
+yum  -y install gcc git patch libxslt libxslt-devel libxml2 libxml2-devel libzip libzip-devel libffi libffi-devel openssl openssl-devel mysql-server mysql-devel gcc make redis
 
 SentryDir=/data/sentry
 SourceDir=/usr/local/src/sentry
