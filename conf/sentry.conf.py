@@ -46,12 +46,12 @@ SENTRY_WEB_OPTIONS = {
     # 'secure_scheme_headers': {'X-FORWARDED-PROTO': 'https'},
 }
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'ottmail.openredcloud.com'
-EMAIL_HOST_PASSWORD = 'mpp1234mpp'
-EMAIL_HOST_USER = 'mpp_alarm@ottmail.openredcloud.com'
+EMAIL_HOST = 'xxxx.com'
+EMAIL_HOST_PASSWORD = 'xxxx'
+EMAIL_HOST_USER = 'xxx@xxxx.com'
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 EMAIL_SUBJECT_PREFIX = '[sentry]: '
-SERVER_EMAIL = 'mpp_alarm@ottmail.openredcloud.com'
+SERVER_EMAIL = 'xxx@xxxx.com'
 MAILGUN_API_KEY = ''
 SECRET_KEY = 'p+7v4BKiUSbTNZlG20ipHPDLDjXlz61jVl0rL/SZOnWlQC9ZVUJDeg=='
