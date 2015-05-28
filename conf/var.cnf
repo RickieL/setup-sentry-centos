@@ -1,0 +1,7 @@
+# 变量设定
+User=sentry
+Group=sentry
+DBuser=sentry
+DBname=sentry
+DBpass=sentry
+RepoDir=/tmp/sentry

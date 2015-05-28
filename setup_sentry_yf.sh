@@ -4,86 +4,65 @@ yum -y update
 
 yum -y install epel-release
 
-yum  -y install gcc git patch libxslt libxslt-devel libxml2 libxml2-devel libzip libzip-devel libffi libffi-devel openssl openssl-devel mysql-server mysql-devel gcc make redis wget man python-devel zlib-devel bzip2-devel readline-devel sqlite-devel
+yum  -y install gcc git patch libxslt libxslt-devel libxml2 libxml2-devel libzip libzip-devel libffi libffi-devel openssl openssl-devel mysql-server mysql-devel gcc make redis wget man python-devel zlib-devel bzip2-devel readline-devel sqlite-devel python-setuptools
 
+RepoDir=/tmp/sentry
 
-# 变量设定
-User=sentry
-Group=sentry
-DBuser=sentry
-DBname=sentry
-DBpass=sentry
+# clone 本仓库
+git clone https://github.com/RickieL/setup-sentry-centos.git $RepoDir
 
+# 引入变量
+source $RepoDir/conf/var.cnf
 
 # 创建sentry用户
-groupadd  ${Group} -g 550
-useradd -g  ${Group} ${User}  -u 550
+groupadd ${Group} &>/dev/null
+useradd -g  ${Group} ${User}  &>/dev/null
 
 # 判断是否需要安装mysql
 # 配置mysql
-## mysql配置文件
-## 创建sentry库及用户
-## 去掉root用户的远程登录
+if [ -f /etc/my.cnf ]; then
+  mv /etc/my.cnf /etc/my.cnf.old
+fi
+cp -f $RepoDir/conf/my.cnf  /etc/my.cnf
+
+# Create database
+service mysqld start
+mysql -uroot -e "CREATE DATABASE IF NOT EXISTS ${DBname} DEFAULT CHARSET utf8 COLLATE utf8_general_ci;"
+mysql -uroot -e "GRANT ALL PRIVILEGES ON ${DBname}.* TO ${DBuser}@'%' IDENTIFIED BY '${DBpass}';"
+mysql -uroot -e "USE mysql; DELETE FROM user WHERE user='';"
+mysql -uroot -e "USE mysql; DELETE FROM user WHERE user='root' AND host != 'localhost';"
+mysql -uroot -e "FLUSH PRIVILEGES;"
+
 
 # 配置及启动redis
+service redis start
 
 # 切换到sentry用户
 ## pyenv安装
 ## python2.7安装
 ## sentry安装
 ## sentry配置文件
+export SENTRY_CONF=/home/$User/.sentry/sentry.conf.py
+
+chmod +x $RepoDir/sentry.sh
+su - sentry -c "$RepoDir/sentry.sh"
 
 # 安装supervisor
 # 配置supervisor
+easy_install pip
+pip install supervisor
 
-SentryDir=/data/sentry
-SourceDir=/usr/local/src/sentry
-# Create database
-service mysqld start
-
-mysql -uroot -e "CREATE DATABASE IF NOT EXISTS ${DBname} DEFAULT CHARSET utf8 COLLATE utf8_general_ci;"
-mysql -uroot -e "GRANT ALL PRIVILEGES ON ${DBname}.* TO ${DBuser}@'%' IDENTIFIED BY '${DBpass}';"
-mysql -uroot -e "FLUSH PRIVILEGES;"
-
-# Create Sentry home directory, user and group
-virtualenv $SentryDir/
-source $SentryDir/bin/activate
-groupadd sentry
-useradd -M -g sentry -d $SentryDir/ sentry
-chown -R sentry:sentry $SentryDir/
-
-# Setup Sentry and Redis libraries
-mkdir -p /usr/local/src
-git clone git@github.com:RickieL/setup-sentry-centos.git $SourceDir/
-cd $SourceDir/
-source $SentryDir/bin/activate
-pip install supervisor mysql-python sentry redis django-redis-cache hiredis nydus
-
-# Initialize configuration
-cp $SourceDir/sentry.conf.py /etc/sentry.conf.py
-
-# 启动 redis
-service redis start
+mkdir -p /etc/supervisord.conf.d
+mkdir -p /var/log/supervisor
+mkdir -p /var/log/sentry
+chown $User:$Group /var/log/sentry
 
 # Setup admin user
-export SENTRY_CONF=/etc/sentry.conf.py
-$SentryDir/bin/sentry --config=/etc/sentry.conf.py upgrade
-python -c "from sentry.utils.runner import configure; configure(); from django.db import DEFAULT_DB_ALIAS as database; from sentry.models import User; User.objects.db_manager(database).create_superuser('admin', 'liaoyongfu@e.hunantv.com', 'admin')" executable=/bin/bash chdir=/var/sentry
+/home/$User/.pyenv/shims/python -c "from sentry.utils.runner import configure; configure(); from django.db import DEFAULT_DB_ALIAS as database; from sentry.models import User; User.objects.db_manager(database).create_superuser('admin', '1365274496@qq.com', 'admin')" executable=/bin/bash chdir=/home/$User
 
 # Run Sentry as a service
-mkdir -p /root/bin
-echo 'source /data/sentry/bin/activate' >> /root/.bashrc
-echo 'PATH=$PATH:~/bin/' >> /root/.bashrc
-source /root/.bashrc
-cp $SourceDir/supervisor.sh /root/bin/supervisor.sh
-chmod +x /root/bin/supervisor.sh
+cp -p $RepoDir/conf/supervisor.conf /etc/supervisord.conf
+cp -p $RepoDir/conf/supervisor-sentry.conf /etc/supervisord.conf.d/sentry.conf
 
-mkdir -p /data/sentry/etc/
-cp $SourceDir/supervisord_sentry.conf $SentryDir/etc/supervisord.conf
-
-# Configure autostart
-chkconfig redis on
-chkconfig mysqld on
-echo '/root/bin/supervisor.sh istart' >> /etc/rc.local
-
-supervisor.sh istart
+supervisord -c /etc/supervisord.conf
+supervisorctl -c /etc/supervisord.conf start all
