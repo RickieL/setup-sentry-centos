@@ -11,11 +11,9 @@ export PATH=$PATH:$Home/.pyenv/bin
 # 安装 pyenv
 curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
 
-echo  """
-export PATH="~/.pyenv/bin:$PATH"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
-""" >> $Home/.bash_profile
+echo  export PATH="~/.pyenv/bin:$PATH" >> $Home/.bash_profile
+echo 'eval "$(pyenv init -)"' >> $Home/.bash_profile
+echo 'eval "$(pyenv virtualenv-init -)"' >> $Home/.bash_profile
 
 source $Home/.bash_profile
 
@@ -31,7 +29,7 @@ pip install -U sentry
 pip install -U sentry[mysql]
 
 # init sentry config
-sentry init
+mkdir -p $Home/.sentry
 cp -f $RepoDir/conf/sentry.conf.py  $Home/.sentry/sentry.conf.py
 
 export SENTRY_CONF=/home/$User/.sentry/sentry.conf.py

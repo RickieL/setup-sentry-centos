@@ -4,7 +4,7 @@ yum -y update
 
 yum -y install epel-release
 
-yum  -y install gcc git patch libxslt libxslt-devel libxml2 libxml2-devel libzip libzip-devel libffi libffi-devel openssl openssl-devel mysql-server mysql-devel gcc make redis wget man python-devel zlib-devel bzip2-devel readline-devel sqlite-devel python-setuptools
+yum  -y install gcc gcc-c++ makegit patch libxslt libxslt-devel libxml2 libxml2-devel libzip libzip-devel libffi libffi-devel openssl openssl-devel mysql-server mysql-devel redis wget man python-devel zlib-devel bzip2-devel readline-devel sqlite-devel python-setuptools
 
 RepoDir=/tmp/sentry
 
