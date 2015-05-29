@@ -4,7 +4,7 @@ yum -y update
 
 yum -y install epel-release
 
-yum  -y install gcc gcc-c++ makegit patch libxslt libxslt-devel libxml2 libxml2-devel libzip libzip-devel libffi libffi-devel openssl openssl-devel mysql-server mysql-devel redis wget man python-devel zlib-devel bzip2-devel readline-devel sqlite-devel python-setuptools
+yum  -y install gcc gcc-c++ makegit patch libxslt libxslt-devel libxml2 libxml2-devel libzip libzip-devel libffi libffi-devel openssl openssl-devel mysql-server mysql-devel wget man python-devel zlib-devel bzip2-devel readline-devel sqlite-devel python-setuptools git
 
 RepoDir=/tmp/sentry
 
@@ -33,9 +33,9 @@ mysql -uroot -e "USE mysql; DELETE FROM user WHERE user='';"
 mysql -uroot -e "USE mysql; DELETE FROM user WHERE user='root' AND host != 'localhost';"
 mysql -uroot -e "FLUSH PRIVILEGES;"
 
-
 # 配置及启动redis
-service redis start
+# redis 需要大于 2.6.12版本，否则报错 ResponseError: wrong number of arguments for 'set' command
+$RepoDir/install_redis.sh
 
 # 切换到sentry用户
 ## pyenv安装
@@ -63,6 +63,10 @@ chown $User:$Group /var/log/sentry
 # Run Sentry as a service
 cp -p $RepoDir/conf/supervisor.conf /etc/supervisord.conf
 cp -p $RepoDir/conf/supervisor-sentry.conf /etc/supervisord.conf.d/sentry.conf
+
+# upgrade setuptools
+wget --no-check-certificate https://bootstrap.pypa.io/ez_setup.py
+python ez_setup.py --insecure
 
 supervisord -c /etc/supervisord.conf
 supervisorctl -c /etc/supervisord.conf start all
