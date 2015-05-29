@@ -20,7 +20,7 @@ cp redis.conf $RDSconf
 
 sed -i 's/daemonize no/daemonize yes/' $RDSconf
 sed -i 's#^dir \./#dir /data/redis/6379/#' $RDSconf
-sed -i 's#^pidfile /var/run/redis.pid#pid /var/run/redis_6379.pid#' $RDSconf
+sed -i 's#^pidfile /var/run/redis.pid#pidfile /var/run/redis_6379.pid#' $RDSconf
 sed -i 's#^loglevel notice#loglevel warning#' $RDSconf
 sed -i 's#^logfile ""#logfile "/var/log/redis_6379.log"#' $RDSconf
 
